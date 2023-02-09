@@ -1,3 +1,5 @@
+#This script updates the KPI on the ROC monitors
+
 import pandas as pd
 import re
 from datetime import date
@@ -6,20 +8,13 @@ from openpyxl import load_workbook
 
 #Update DM
 today = date.today()
-df_today = pd.DataFrame({'Data': [today]})
-str_today = str(today.strftime("%d-%b-%Y"))
-date_elem = [int(date_elem) for date_elem in re.findall('[0-9]+', str_today)]
-
-month = str_today[3] + str_today[4] + str_today[5]
-day = date_elem[0]
-year = date_elem[1]
 
 #Loading weekly KPI from UPDF
 
 sink = r"C:\Users\Lesley Chingwena\Documents\python_scripts\Uptime\docs\bin.xlsx"
 source = r"C:\Users\Lesley Chingwena\Documents\python_scripts\Uptime\docs\Sensor_Uptime_Report.xlsm"
 
-#-----------------------Loading uptime data-frame----------------------
+#-----------------------Loading uptime data_frame----------------------
 updf = load_workbook(source, 
 read_only = True,
 data_only=True)
@@ -36,6 +31,7 @@ read_only = False)
 dm_sheet = dm["recent"]
 
 #copying row to set cell formatting in next entry 
+
 dm_sheet['A9'] = dm_sheet.cell(row = 9, column = 1).value
 dm_sheet['B9'] = dm_sheet.cell(row = 9, column = 2).value
 dm_sheet['C9'] = dm_sheet.cell(row = 9, column = 3).value
