@@ -8,7 +8,7 @@ import time
 _DELAY = 100.0  # second
 _QUIT_DELAY = 10.0
 
-def update(source, target):
+def update(source, weekly, daily, date, yesterday):
 
     # Load the source workbook
     excel = win32.gencache.EnsureDispatch('Excel.Application')
@@ -27,13 +27,13 @@ def update(source, target):
         for col in range(len(data[row])):
             source_sheet.Cells(row + 1, col + 1).Value = data[row][col]
             
-    # Load the target workbook
-    target_wb = excel.Workbooks.Open(target, ReadOnly=False)
+    # Load the weekly uptime workbook
+    weekly_wb = excel.Workbooks.Open(weekly, ReadOnly=False)
     excel.Visible = False
     excel.DisplayAlerts=False
 
     # Get the existing sheet "Metric" in the existing workbook
-    raw_data_sheet = target_wb.Sheets("data_raw")
+    raw_data_sheet = weekly_wb.Sheets("data_raw")
 
     # Clear the existing data in the "Metric" sheet
     raw_data_sheet.Cells.ClearContents()
@@ -47,27 +47,54 @@ def update(source, target):
     # Run the macro that corresponds to the VBA button (Copy New Uptime Data)
     excel.Run('Sheet1.CommandButton1_Click')
 
-    # Delay to allow for KPI calculations before saving and closing excel
+    # Delay to allow for KPI calculations before further manupulation
     time.sleep(_DELAY)
 
+    daily_wb = excel.Workbooks.Open(daily, ReadOnly=False)
+    
+    # Update Daily KPI
+    tdy_sheet = weekly_wb.Sheets(f"{date}")
 
-    # if os.path.exists(target):
-    #     os.remove(target)
+    # Determine the size of data in the existing sheet
+    data_range = tdy_sheet.UsedRange
+
+    # Copy data from existing sheet to new sheet 
+    tdy_sheet.Copy(Before=daily_wb.Sheets("VBA"))
+    print("copy complete")
+
+    new_sheet = daily_wb.Sheets(f"{date}")
+
+    # Copy formatting from previous sheet 
+    prev_sheet = daily_wb.Sheets(f"{yesterday}")
+    s_range = data_range.Columns("S").Rows.Count
+    prev_sheet.Range(f"S1:S{s_range}").Copy(new_sheet.Range("S1"))
+    print("Formatting complete")
+
+    # Update Metrics sheet 
+    metric_sheet = daily_wb.Sheets("Metric")
+    last_entry = metric_sheet.UsedRange.Rows.count
+    
+    # Copying formatting into the folowing row
+    metric_sheet.Cells((last_entry + 1), 1).Value = metric_sheet.Cells(last_entry, 1).Value
+    metric_sheet.Cells((last_entry + 1), 2).Value = metric_sheet.Cells(last_entry, 2).Value
+    
+    # Copying actual data into the cells 
+    metric_sheet.Cells((last_entry + 1), 1).Value = date
+    metric_sheet.Cells((last_entry + 1), 2).Value = f"='{date}'!01"
+
+    print("Metric update complete")
+    # Save and close workbook
+    time.sleep(_QUIT_DELAY)
+
+    daily_wb.Save()
+    daily_wb.Close()
+    print("Daily saved")
 
     # Close the workbook
-    target_wb.Save()
-    target_wb.Close()
+    weekly_wb.Save()
+    weekly_wb.Close()
+    print("Weekly saved")
     
-    # Create an instance of the WScript.Shell object
-    # shell = win32.Dispatch("WScript.Shell")
-
-    # # Use the SendKeys method to simulate keystrokes
-    # # The TAB key is used to move the focus to the "Yes" button in the prompt
-    # shell.SendKeys("{TAB}")
-
-    # # The ENTER key is used to activate the "Yes" button and replace the existing file
-    # shell.SendKeys("{ENTER}")
-        
     # Quit Excel
     excel.Quit()
 
@@ -97,19 +124,8 @@ def saving(source, third_month, month, year, type):
     op_workbook.Close(SaveChanges=True)
     time.sleep(_QUIT_DELAY)
 
-    # Create an instance of the WScript.Shell object
-    shell = win32.Dispatch("WScript.Shell")
-
-    # Use the SendKeys method to simulate keystrokes
-    # The TAB key is used to move the focus to the "Yes" button in the prompt
-    shell.SendKeys("{TAB}")
-
-    # The ENTER key is used to activate the "Yes" button and replace the existing file
-    shell.SendKeys("{ENTER}")
-
     time.sleep(_DELAY)
     data_workbook.SaveAs(rf"C:\Users\Lesley Chingwena\Documents\python_scripts\Uptime\docs\Sensor_{type}_Uptime_Report_{month}_{year}.xlsm", FileFormat=52)
 
     # Quit Excel
     excel.Quit()
-

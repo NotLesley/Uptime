@@ -24,6 +24,10 @@ third_month_date = now - datetime.timedelta(days=90)
 # Format the date as "MMMM" (e.g., "January", "February", "March", etc.)
 third_month = third_month_date.strftime("%b")
 
+# Calculating yesterday's date
+ytd = now - datetime.timedelta(days=4)
+ytd_string = ytd.strftime("%d %b %Y")
+
 # Source_file is the csv file from the database
 source_file = rf"C:\Users\Lesley Chingwena\Documents\python_scripts\Uptime\docs\csv\uptime_{formatted_date}.csv"
 
@@ -39,10 +43,9 @@ def run():
     weekly_uptime =  r"C:\Users\Lesley Chingwena\Documents\python_scripts\Uptime\docs\Weekly_Uptime_Report.xlsm"
 
     # Update Uptime
-    raw.update(source_file, weekly_uptime)
+    raw.update(source_file, weekly_uptime, daily_uptime, date_string, ytd_string)
     time.sleep(_PRO_DELAY)
-    raw.update(source_file, daily_uptime)
-    time.sleep(_PRO_DELAY)
+   
 
     # creates monthly backups on the first weekday of a new month 
     if today.day == 1 and 0 < datetime.datetime.now().weekday() < 5:

@@ -1,0 +1,25 @@
+import os
+import shutil
+
+def zip_folder(folder_path, output_path):
+    shutil.make_archive(output_path, 'zip', folder_path)
+    print("Folder successfully zipped.")
+
+def send_to_location(zipped_folder_path, destination_path):
+    shutil.move(zipped_folder_path, destination_path)
+    print("Zipped folder successfully sent to destination.")
+
+# Define the folder location to be zipped
+folder_path = "C:\\path\\to\\folder"
+
+# Define the location where the zipped folder should be saved
+output_path = "C:\\path\\to\\output\\folder"
+
+# Zip the folder
+zip_folder(folder_path, output_path)
+
+# Define the destination where the zipped folder should be sent
+destination_path = "C:\\path\\to\\destination"
+
+# Send the zipped folder to the destination
+send_to_location(output_path + ".zip", destination_path)
