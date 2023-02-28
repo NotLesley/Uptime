@@ -9,13 +9,8 @@ from pathlib import PurePath
 env = environ.Env() 
 environ.Env.read_env()
 
-# SharePoint folder name where operating workbook is located. May include subfolders 
-FOLDER_NAME = env('sharepoint_folder')
 # location or remote folder_destination where workbook will be downloaded
 FOLDER_DEST = r"C:\Users\Lesley Chingwena\Documents\python_scripts\Uptime\docs"
-# 3 args = SharePoint file name. This is used when only one file is being downlaoded 
-#if all files need to be downloaded, then set this value to 'None'
-FILE_NAME = 'None'
 # 4 args = SharePoiont file name pattern (filter attribute for folders containning files with different naming formats)
 FILE_NAME_PATTERN = 'Uptime'
 
@@ -43,12 +38,10 @@ class Down:
             if re.search(keyword, file.name):
                 self.get_file(file.name, folder)
 
-    def download(self, FILE_NAME): 
+    def download(self, FILE_NAME, SOURCE_FOLDER): 
         if FILE_NAME != 'None':
-            self.get_file(FILE_NAME, FOLDER_NAME)
-            print("Download")
+            self.get_file(FILE_NAME, SOURCE_FOLDER)
         elif FILE_NAME_PATTERN != 'None':
-            self.get_files_by_pattern(FILE_NAME_PATTERN, FOLDER_NAME)
-            print("Download")
+            self.get_files_by_pattern(FILE_NAME_PATTERN, SOURCE_FOLDER)
         else:
-            self.get_files(FOLDER_NAME)
+            self.get_files(SOURCE_FOLDER)
